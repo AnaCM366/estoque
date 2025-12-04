@@ -56,6 +56,19 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> _editarEstoque(int index, NovoEstoque itemAtual) async {
+    final resultado = await Navigator.push<NovoEstoque>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EstoqueFormPage(
+          name: itemAtual.nomeProduto,
+          quantidade: itemAtual.quantidade,
+          dataInclusao: itemAtual.dataInclusao,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

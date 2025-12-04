@@ -2,7 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class EstoqueFormPage extends StatefulWidget {
-  const EstoqueFormPage({super.key});
+  const EstoqueFormPage({super.key, required this.name});
+
+  final ;
 
   @override
   State<EstoqueFormPage> createState() => _EstoqueFormPageState();
