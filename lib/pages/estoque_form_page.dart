@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
+//page de formulário de estoque
+
 class EstoqueFormPage extends StatefulWidget {
   const EstoqueFormPage({super.key, required this.name});
 
@@ -13,7 +15,10 @@ class EstoqueFormPage extends StatefulWidget {
 class _EstoqueFormPageState extends State<EstoqueFormPage> {
   late TextEditingController controllerProduto;
   late TextEditingController controllerQuantidade;
+  late TextEditingController controllerCategoria;
+  late TextEditingController controllerDescricao;
   late TextEditingController controllerData;
+  late TextEditingController controllerDisponivel;
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -21,7 +26,10 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
   void initState() {
     controllerProduto = TextEditingController();
     controllerQuantidade = TextEditingController();
+    controllerCategoria = TextEditingController();
+    controllerDescricao = TextEditingController();
     controllerData = TextEditingController();
+    controllerDisponivel = TextEditingController();
     super.initState();
   }
 
@@ -29,7 +37,10 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
   void dispose() {
     controllerProduto.dispose();
     controllerQuantidade.dispose();
+    controllerCategoria.dispose();
+    controllerDescricao.dispose();
     controllerData.dispose();
+    controllerDisponivel.dispose();
     super.dispose();
   }
 
@@ -40,8 +51,8 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
       body: Form(
         key: formKey,
         child: Column(
-          children: [
-            Padding(
+          children: [ // adicionar o id
+            Padding( // função de adicionar informação do nome do produto
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
                 controller: controllerProduto,
@@ -52,7 +63,7 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
                 validator: (value) => _validarProduto(value),
               ),
             ),
-            Padding(
+            Padding( // função de adicionar informação da quantidade do produto
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
                 controller: controllerQuantidade,
@@ -66,6 +77,26 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
+                controller: controllerCategoria,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Digite a categoria',
+                ),),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                controller: controllerDescricao,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Digite a descrição',
+                ),
+                validator: (value) => _validarDescricao(value),
+                ),
+            ),
+            Padding( // função de adicionar informação da data de inclusão do produto
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
                 controller: controllerData,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
@@ -73,6 +104,16 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
                 ),
                 validator: (value) => _validarData(value),
               ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                controller: controllerDisponivel,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'O produto está disponível?',
+                ),
+            ),
             ),
             ElevatedButton(
               onPressed: _salvarEstoque,
@@ -113,7 +154,10 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
   Future<void> _salvarEstoque() async {
     final nomeProduto = controllerProduto.text;
     final quantidade = int.parse(controllerQuantidade.text);
+    final categoria = String(controllerCategoria.text);
+    final descricao = String(controllerDescricao.text);
     final dataInclusao = DateTime.parse(controllerData.text);
+    final disponivel = bool(controllerDisponivel.text.toLowerCase());
 
     if (formKey.currentState?.validate() == true) {
       // Aqui você pode salvar o novo estoque no banco de dados ou em outra fonte de dados.
@@ -128,7 +172,10 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
         data: {
           'produto': nomeProduto,
           'quantidade': quantidade,
+          'categoria': categoria,
+          'descricao': descricao,
           'data': dataInclusao.toIso8601String(),
+          'disponivel': disponivel,
         },
       );
       if (!context.mounted) return;

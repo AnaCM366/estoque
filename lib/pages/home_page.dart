@@ -45,9 +45,13 @@ class _HomePageState extends State<HomePage> {
     var listarDados = response.data as List;
     for (var dados in listarDados) {
       var estoque = NovoEstoque(
+        id: dados['id'],
         nomeProduto: dados['produto'],
         quantidade: dados['quantidade'],
+        categoria: dados['categoria'],
+        descricao: dados['descricao'],
         dataInclusao: DateTime.parse(dados['data']),
+        disponivel: dados['disponivel'],
       );
       estoques.add(estoque);
     }
@@ -56,14 +60,19 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  // função de editar estoque
   Future<void> _editarEstoque(int index, NovoEstoque itemAtual) async {
     final resultado = await Navigator.push<NovoEstoque>(
       context,
       MaterialPageRoute(
         builder: (context) => EstoqueFormPage(
+          id: itemAtual.id,
           name: itemAtual.nomeProduto,
           quantidade: itemAtual.quantidade,
+          categoria: itemAtual.categoria,
+          descricao: itemAtual.descricao,
           dataInclusao: itemAtual.dataInclusao,
+          disponivel: itemAtual.disponivel,
         ),
       ),
     );
