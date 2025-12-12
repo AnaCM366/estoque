@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:estoque/models/estoque_model.dart';
 
 //page de formulário de estoque
 
 class EstoqueFormPage extends StatefulWidget {
-  const EstoqueFormPage({super.key, required this.name});
-
-  final ;
+  final String? id;
+  const EstoqueFormPage({super.key, this.id});
 
   @override
   State<EstoqueFormPage> createState() => _EstoqueFormPageState();
@@ -28,8 +28,14 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
     controllerQuantidade = TextEditingController();
     controllerCategoria = TextEditingController();
     controllerDescricao = TextEditingController();
-    controllerData = TextEditingController();
+    controllerData = TextEditingController(
+      text: selectedData.toIso8601String(),
+    );
     controllerDisponivel = TextEditingController();
+
+    if (widget.id != null) {
+      _loadNovoEstoque(widget.id!);
+    }
     super.initState();
   }
 
@@ -47,12 +53,17 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Cadastro de Estoque")),
+      appBar: AppBar(
+        title: Text(
+          widget.id == null ? "Cadastro de Estoque" : "Editar Estoque",
+        ),
+      ),
       body: Form(
         key: formKey,
         child: Column(
-          children: [ // adicionar o id
-            Padding( // função de adicionar informação do nome do produto
+          children: [
+            Padding(
+              // função de adicionar informação do nome do produto
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
                 controller: controllerProduto,
@@ -63,7 +74,8 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
                 validator: (value) => _validarProduto(value),
               ),
             ),
-            Padding( // função de adicionar informação da quantidade do produto
+            Padding(
+              // função de adicionar informação da quantidade do produto
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
                 controller: controllerQuantidade,
@@ -81,8 +93,9 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Digite a categoria',
-                ),),
+                ),
               ),
+            ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
@@ -91,10 +104,10 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
                   border: OutlineInputBorder(),
                   labelText: 'Digite a descrição',
                 ),
-                validator: (value) => _validarDescricao(value),
-                ),
+              ),
             ),
-            Padding( // função de adicionar informação da data de inclusão do produto
+            Padding(
+              // função de adicionar informação da data de inclusão do produto
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
                 controller: controllerData,
@@ -113,7 +126,7 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
                   border: OutlineInputBorder(),
                   labelText: 'O produto está disponível?',
                 ),
-            ),
+              ),
             ),
             ElevatedButton(
               onPressed: _salvarEstoque,
@@ -167,19 +180,37 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
           baseUrl: 'https://6912666052a60f10c8218ac5.mockapi.io/api/v1',
         ),
       );
-      var response = await dio.post(
-        '/estoque',
-        data: {
-          'produto': nomeProduto,
-          'quantidade': quantidade,
-          'categoria': categoria,
-          'descricao': descricao,
-          'data': dataInclusao.toIso8601String(),
-          'disponivel': disponivel,
-        },
-      );
+
+      if (widget.id == null) {
+        await dio.post(
+          '/estoque',
+          data: {
+            'produto': nomeProduto,
+            'quantidade': quantidade,
+            'categoria': categoria,
+            'descricao': descricao,
+            'data': dataInclusao.toIso8601String(),
+            'disponivel': disponivel,
+          },
+        );
+      } else {
+        await dio.put(
+          '/estoque/${widget.id}',
+          data: {
+            'produto': nomeProduto,
+            'quantidade': quantidade,
+            'categoria': categoria,
+            'descricao': descricao,
+            'data': dataInclusao.toIso8601String(),
+            'disponivel': disponivel,
+          },
+        );
+      }
+
       if (!context.mounted) return;
       Navigator.pop(context); // Volta para a tela anterior após salvar.
     }
   }
+
+  
 }

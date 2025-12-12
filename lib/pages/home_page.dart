@@ -61,22 +61,22 @@ class _HomePageState extends State<HomePage> {
   }
 
   // função de editar estoque
-  Future<void> _editarEstoque(int index, NovoEstoque itemAtual) async {
-    final resultado = await Navigator.push<NovoEstoque>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EstoqueFormPage(
-          id: itemAtual.id,
-          name: itemAtual.nomeProduto,
-          quantidade: itemAtual.quantidade,
-          categoria: itemAtual.categoria,
-          descricao: itemAtual.descricao,
-          dataInclusao: itemAtual.dataInclusao,
-          disponivel: itemAtual.disponivel,
-        ),
-      ),
-    );
-  }
+  // Future<void> _editarEstoque(int index, NovoEstoque itemAtual) async {
+  //   final resultado = await Navigator.push<NovoEstoque>(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => EstoqueFormPage(
+  //         id: itemAtual.id,
+  //         name: itemAtual.nomeProduto,
+  //         quantidade: itemAtual.quantidade,
+  //         categoria: itemAtual.categoria,
+  //         descricao: itemAtual.descricao,
+  //         dataInclusao: itemAtual.dataInclusao,
+  //         disponivel: itemAtual.disponivel,
+  //       ),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {

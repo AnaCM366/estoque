@@ -16,4 +16,16 @@ class NovoEstoque {
     required this.descricao,
     required this.disponivel,
   });
+
+  factory NovoEstoque.fromJson(Map<String, dynamic> json) {
+    return NovoEstoque(
+      id: json['id'],
+      nomeProduto: json['produto'],
+      dataInclusao: DateTime.fromMicrosecondsSinceEpoch(json['data']),
+      quantidade: json['quantidade'],
+      categoria: json['categoria'],
+      descricao: json['descricao'],
+      disponivel: json['disponivel'],
+    );
+  }
 }
