@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:estoque/models/estoque_model.dart';
+import 'package:flutter/services.dart';
 
 //page de formulário de estoque
 
@@ -17,7 +18,8 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
   late TextEditingController controllerQuantidade;
   late TextEditingController controllerCategoria;
   late TextEditingController controllerDescricao;
-  late TextEditingController controllerData;
+  late TextEditingController controllerData; 
+  DateTime selectedDate = DateTime.now();
   late TextEditingController controllerDisponivel;
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -84,6 +86,8 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
                   labelText: 'Digite a quantidade',
                 ),
                 validator: (value) => _validarQuantidade(value),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                keyboardType: TextInputType.number,
               ),
             ),
             Padding(
@@ -115,22 +119,30 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
                   border: OutlineInputBorder(),
                   labelText: 'Digite a data',
                 ),
-                validator: (value) => _validarData(value),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextFormField(
-                controller: controllerDisponivel,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'O produto está disponível?',
-                ),
+          Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Checkbox(
+                    value: controllerDisponivel.text == "true",
+                    onChanged: (value) {
+                      setState(() {
+                        controllerDisponivel.text = value == true
+                            ? "true"
+                            : "false";
+                      });
+                    },
+                  ),
+                  const Text("Disponível"),
+                ],
               ),
             ),
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: _salvarEstoque,
-              child: Text("Salvar Estoque"),
+              label: Text("Salvar Karte"),
+              icon: Icon(Icons.save_alt_outlined),
             ),
           ],
         ),
@@ -153,14 +165,6 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
     if (quantidade == null || quantidade < 0) {
       return 'A quantidade deve ser um número inteiro positivo.';
     }
-    return null;
-  }
-
-  String? _validarData(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'A data é obrigatória.';
-    }
-    // Aqui você pode adicionar uma validação mais robusta para a data, se necessário.
     return null;
   }
 
@@ -212,5 +216,31 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
     }
   }
 
-  
+  Future<void> _loadNovoEstoque(String id) async {
+    var dio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 30),
+        baseUrl: 'https://6912666052a60f10c8218ac5.mockapi.io/api/v1',
+      ),
+    );
+
+    var response = await dio.get('/estoque/$id');
+    if (response.statusCode == 200) {
+      setState(() {
+        _estoque = NovoEstoque.fromJson(response.data);
+        controllerProduto.text = _estoque!.nomeProduto;
+        controllerQuantidade.text = _estoque!.quantidade.toString();
+        controllerCategoria.text = _estoque!.categoria;
+        controllerDescricao.text = _estoque!.descricao;
+        controllerData.text = _estoque!.dataInclusao.toIso8601String();
+        controllerDisponivel.text = _estoque!.disponivel.toString();
+      });
+    } else {
+      if (!context.mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao carregar o estoque.')));
+    }
+  }
 }
