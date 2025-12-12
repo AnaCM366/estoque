@@ -22,7 +22,7 @@ class NovoEstoque {
       id: json['id'],
       nomeProduto: json['produto'],
       dataInclusao: DateTime.fromMicrosecondsSinceEpoch(json['data']),
-      quantidade: json['quantidade'],
+      quantidade: json['quantidade'] as int,
       categoria: json['categoria'],
       descricao: json['descricao'],
       disponivel: json['disponivel'],

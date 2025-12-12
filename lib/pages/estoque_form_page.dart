@@ -18,11 +18,13 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
   late TextEditingController controllerQuantidade;
   late TextEditingController controllerCategoria;
   late TextEditingController controllerDescricao;
-  late TextEditingController controllerData; 
+  late TextEditingController controllerData;
   DateTime selectedDate = DateTime.now();
   late TextEditingController controllerDisponivel;
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  NovoEstoque? _estoque;
 
   @override
   void initState() {
@@ -31,7 +33,7 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
     controllerCategoria = TextEditingController();
     controllerDescricao = TextEditingController();
     controllerData = TextEditingController(
-      text: selectedData.toIso8601String(),
+      text: selectedDate.toIso8601String(),
     );
     controllerDisponivel = TextEditingController();
 
@@ -115,13 +117,14 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
                 controller: controllerData,
+                readOnly: true,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Digite a data',
                 ),
               ),
             ),
-          Padding(
+            Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
@@ -141,7 +144,7 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
             ),
             ElevatedButton.icon(
               onPressed: _salvarEstoque,
-              label: Text("Salvar Karte"),
+              label: Text("Salvar Produto"),
               icon: Icon(Icons.save_alt_outlined),
             ),
           ],
@@ -171,10 +174,10 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
   Future<void> _salvarEstoque() async {
     final nomeProduto = controllerProduto.text;
     final quantidade = int.parse(controllerQuantidade.text);
-    final categoria = String(controllerCategoria.text);
-    final descricao = String(controllerDescricao.text);
-    final dataInclusao = DateTime.parse(controllerData.text);
-    final disponivel = bool(controllerDisponivel.text.toLowerCase());
+    final categoria = controllerCategoria.text;
+    final descricao = controllerDescricao.text;
+    final dataInclusao = selectedDate.microsecondsSinceEpoch;
+    final disponivel = controllerDisponivel.text.toLowerCase() == 'true';
 
     if (formKey.currentState?.validate() == true) {
       // Aqui você pode salvar o novo estoque no banco de dados ou em outra fonte de dados.
@@ -193,7 +196,7 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
             'quantidade': quantidade,
             'categoria': categoria,
             'descricao': descricao,
-            'data': dataInclusao.toIso8601String(),
+            'data': dataInclusao,
             'disponivel': disponivel,
           },
         );
@@ -205,7 +208,7 @@ class _EstoqueFormPageState extends State<EstoqueFormPage> {
             'quantidade': quantidade,
             'categoria': categoria,
             'descricao': descricao,
-            'data': dataInclusao.toIso8601String(),
+            'data': dataInclusao,
             'disponivel': disponivel,
           },
         );

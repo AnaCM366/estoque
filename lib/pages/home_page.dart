@@ -19,13 +19,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    super.initState();
     _carregarEstoques();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
+    super.initState();
   }
 
   Future<void> _carregarEstoques() async {
@@ -43,14 +38,17 @@ class _HomePageState extends State<HomePage> {
     var response = await dio.get('/estoque');
 
     var listarDados = response.data as List;
+
     for (var dados in listarDados) {
       var estoque = NovoEstoque(
         id: dados['id'],
         nomeProduto: dados['produto'],
-        quantidade: dados['quantidade'],
+        quantidade: int.parse(
+          dados['quantidade'].toString().replaceAll(RegExp(r'[^0-9]'), ''),
+        ),
         categoria: dados['categoria'],
         descricao: dados['descricao'],
-        dataInclusao: DateTime.parse(dados['data']),
+        dataInclusao: DateTime.fromMicrosecondsSinceEpoch(dados['data']),
         disponivel: dados['disponivel'],
       );
       estoques.add(estoque);
@@ -58,6 +56,11 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       isloading = false;
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   // função de editar estoque
@@ -96,8 +99,13 @@ class _HomePageState extends State<HomePage> {
                   title: Text(estoques[index].nomeProduto),
                   subtitle: Column(
                     children: [
-                      Text(estoques[index].quantidade.toString()),
-                      Text(estoques[index].dataInclusao.toString()),
+                      Text('Quantidade: ${estoques[index].quantidade}'),
+                      Text('Categoria: ${estoques[index].categoria}'),
+                      Text('Descrição: ${estoques[index].descricao}'),
+                      Text(
+                        'Data de Inclusão: ${estoques[index].dataInclusao.toLocal().toIso8601String()}',
+                      ),
+                      Text('Disponível: ${estoques[index].disponivel}'),
                     ],
                   ),
                   trailing: IconButton(
@@ -136,6 +144,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                   isThreeLine: true,
+                  onTap: () => _editarEstoque(estoques[index].id),
                 );
               },
             ),
@@ -154,6 +163,21 @@ class _HomePageState extends State<HomePage> {
           MaterialPageRoute(
             builder: (context) {
               return EstoqueFormPage();
+            },
+          ),
+        )
+        .then((_) {
+          estoques.clear();
+          _carregarEstoques();
+        });
+  }
+
+  void _editarEstoque(String id) async {
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (context) {
+              return EstoqueFormPage(id: id);
             },
           ),
         )
